@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -18,8 +20,7 @@ public class Item {
     private Long id;
 
     private String name;
-    private String currentPrice;
-    private String retailPrice;
+    private String sizeAndPrice;
     private String releaseDate;
-    private String sizes;
+    private LocalDateTime timeScraped = LocalDateTime.now();
 }

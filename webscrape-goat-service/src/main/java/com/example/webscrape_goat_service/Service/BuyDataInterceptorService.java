@@ -1,10 +1,13 @@
 package com.example.webscrape_goat_service.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +21,13 @@ public class BuyDataInterceptorService {
     @Autowired
     private WebscrapeService webscrapeService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     public String createBuyDataTableUrl(String userSearchQuery) {
         String templateId = webscrapeService.getItemTemplateID(userSearchQuery);
-
         return "https://www.goat.com/web-api/v1/product_variants/buy_bar_data?productTemplateId="
-                + templateId +"&countryCode=CA";
+                + templateId + "&countryCode=CA";
     }
 
     public ObjectNode interceptRequest(String userSearchQuery) {
@@ -31,12 +36,17 @@ public class BuyDataInterceptorService {
             HttpGet request = new HttpGet(url);
             CloseableHttpResponse response = httpClient.execute(request);
 
-            return (ObjectNode) response;
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                String result = EntityUtils.toString(entity);
+                ObjectNode jsonResponse = (ObjectNode) objectMapper.readTree(result);
+                logger.info("Successfully intercepted buy data for: {}", userSearchQuery);
+                return jsonResponse;
+            }
         } catch (Exception e) {
             logger.error("Failed to intercept buy data request at: {} for: {} - {}",
                     url, userSearchQuery, e.getMessage());
-            return null;
         }
+        return null;
     }
-
 }

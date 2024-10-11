@@ -1,5 +1,6 @@
 package com.example.webscrape_goat_service.model;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,19 +9,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-public class Item {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class RawBuyData {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-    private String sizeAndPrice;
-    private String releaseDate;
-    private LocalDateTime timeScraped = LocalDateTime.now();
+    private ObjectNode rawResponse;
 }

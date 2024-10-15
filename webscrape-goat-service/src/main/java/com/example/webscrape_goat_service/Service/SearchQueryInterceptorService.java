@@ -1,5 +1,7 @@
 package com.example.webscrape_goat_service.Service;
 
+import com.example.webscrape_goat_service.model.RawSearchQuery;
+import com.example.webscrape_goat_service.repository.RawSearchQueryRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.http.HttpEntity;
@@ -16,13 +18,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class SearchQueryInterceptorService {
 
-    private final Logger logger = LoggerFactory.getLogger(SearchQueryInterceptorService.class);
+    private final static Logger logger = LoggerFactory.getLogger(SearchQueryInterceptorService.class);
+
+    private final RawSearchQueryRepository rawSearchQueryRepository;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    private WebscrapeService webscrapeService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    public SearchQueryInterceptorService(RawSearchQueryRepository rawSearchQueryRepository,
+                                         ObjectMapper objectMapper) {
+        this.rawSearchQueryRepository = rawSearchQueryRepository;
+        this.objectMapper = objectMapper;
+    }
 
     public String createQueryUrl(String userSearchQuery) {
         return  "https://ac.cnstrc.com/search/" + userSearchQuery
@@ -40,6 +46,14 @@ public class SearchQueryInterceptorService {
                 String result = EntityUtils.toString(entity);
                 ObjectNode jsonResponse = (ObjectNode) objectMapper.readTree(result);
                 logger.info("Successfully intercepted query request for: {}", userSearchQuery);
+
+                // save the raw response into a database for kafka processing
+                RawSearchQuery rawSearchQuery = new RawSearchQuery();
+
+                rawSearchQuery.setQuery(userSearchQuery);
+                rawSearchQuery.setResponse(jsonResponse);
+                rawSearchQueryRepository.save(rawSearchQuery);
+
                 return jsonResponse;
             }
         } catch (Exception e) {
@@ -49,4 +63,3 @@ public class SearchQueryInterceptorService {
         return null;
     }
 }
-

@@ -1,13 +1,13 @@
 package com.example.webscrape_goat_service.model;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -19,5 +19,10 @@ public class RawSearchQuery {
     private Long id;
 
     private String query;
+
     private ObjectNode response;
+
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime localDateTime;
 }

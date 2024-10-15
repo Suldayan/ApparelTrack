@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RawSearchQueryRepository extends JpaRepository<RawSearchQuery, Long> {
-    void deleteRawSearchQueryByTemplateId(String templateId);
+    void deleteRawSearchQueryByQuery(String query);
 }
